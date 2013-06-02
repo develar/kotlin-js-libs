@@ -136,7 +136,9 @@ function processMembers(members, moduleTree, indent) {
     var classNameToMembers = Object.create(null)
     switch (member.nodeType) {
       case ts.TypeScript.NodeType.FuncDecl:
-        processFunction(member, indent)
+        if (!member.isConstructor) {
+          processFunction(member, indent)
+        }
         break;
 
       case ts.TypeScript.NodeType.InterfaceDeclaration:
@@ -207,6 +209,10 @@ function processClassesOrTraits(map, indent, isTrait) {
     var subMembers = map[name];
     var hasMembers = subMembers.length > 0 && subMembers[0].length > 0;
     if (hasMembers) {
+      var firstMember = subMembers[0][0];
+      if (firstMember.nodeType === ts.TypeScript.NodeType.FuncDecl && firstMember.isConstructor) {
+        processFunction(firstMember, null)
+      }
       kt += " {"
     }
     for (var i = 0, n = subMembers.length; i < n; i++) {
