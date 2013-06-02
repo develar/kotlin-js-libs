@@ -22,7 +22,7 @@ function appendNewLineIfNeed() {
 function processModuleTree(moduleTree, indent) {
   for (var moduleName in moduleTree) {
     appendNewLineIfNeed()
-    kt += "\n" + indent + "object " + moduleName + " {"
+    kt += "\n" + indent + "public object " + moduleName + " {"
     var subModuleTree = Object.create(null)
     var subIndent = indent + "\t";
     var subModules = moduleTree[moduleName];
@@ -55,10 +55,16 @@ function processFunction(member, indent) {
       kt += ", "
     }
 
+    if (i == (n - 1) && member.variableArgList) {
+      kt += "vararg "
+    }
+
     kt += arg.id.text + ":"
     processExpression(arg.typeExpr.term)
-
-    //drebugger
+    if (arg.isOptionalArg()) {
+      kt += "? = null"
+    }
+    //rebugger
   }
   kt += "):"
   if (member.returnTypeAnnotation === null) {
@@ -79,6 +85,15 @@ function tsTypeNameToKotlin(name) {
 
     case "void":
       return "Unit"
+
+    case "bool":
+      return "Boolean"
+
+    case "number":
+      return "Number"
+
+    case "Function":
+      return "()->Unit"
 
     default:
       return name
@@ -140,12 +155,47 @@ function processMembers(members, moduleTree, indent) {
         addOrCreate(moduleTree, name, member.members.members)
         break;
 
+      case ts.TypeScript.NodeType.VarDecl:
+        processVariable(member, indent)
+        break;
+
       default:
         console.log("skip " + (member.name === undefined ? "" : member.name.text) + ", unsupported node type " + member.nodeType)
     }
 
     processClassesOrTraits(traitNameToMembers, indent, true)
     processClassesOrTraits(classNameToMembers, indent, false)
+  }
+}
+
+function processVariable(member, indent) {
+  kt += "\n" + indent + "public "
+  var term = member.typeExpr.term;
+  // is it object declaration (kotlin singleton)
+  var isObjectDeclaration = term.nodeType == ts.TypeScript.NodeType.Interface
+  if (isObjectDeclaration) {
+    kt += "object "
+  }
+  else {
+    //if (member.id.text == "paramName") {
+    //  debugger
+    //  debugger
+    //  debugger
+    //}
+    kt += "val "
+  }
+  kt += member.id.text
+  if (isObjectDeclaration) {
+    kt += " {"
+    processMembers(term.members.members, null, indent + "\t")
+    kt += "\n" + indent + "}"
+  }
+  else {
+    kt += ":"
+    processExpression(term)
+    if (ts.TypeScript.hasFlag(member.sym.flags, ts.TypeScript.SymbolFlags.Optional)) {
+      kt += "?"
+    }
   }
 }
 
