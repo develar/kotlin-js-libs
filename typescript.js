@@ -23709,4 +23709,4 @@ var TypeScript;
     TypeScript.stringToLiteral = stringToLiteral;
 })(TypeScript || (TypeScript = {}));
 
-module.exports.TypeScript = TypeScript
+module.exports = TypeScript

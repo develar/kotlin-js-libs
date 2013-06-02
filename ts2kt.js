@@ -1,9 +1,12 @@
 var fs = require('fs');
 var assert = require('assert');
-var ts = require("./typescript");
+/**
+ * @type {TypeScript}
+ */
+var TypeScript = require("./typescript");
 //eval(fs.readFileSync('node_modules/typescript/bin/typescript.js')+'');
 
-var compiler = new ts.TypeScript.TypeScriptCompiler();
+var compiler = new TypeScript.TypeScriptCompiler();
 compiler.parseUnit(fs.readFileSync('/Users/develar/Downloads/kendoui/typescript/kendo.web.d.ts', {encoding: "utf8"}), "kendo");
 var topLevelMemebers = compiler.scripts.members[0].bod.members;
 // todo configure package name
@@ -36,14 +39,25 @@ function processModuleTree(moduleTree, indent) {
 
 function processFunction(member, indent) {
   if (indent !== null) {
-    kt += "\n" + indent + "public fun " + member.name.text
+    kt += "\n" + indent + "public "
+    if (member.isDeclaration() || TypeScript.hasFlag(member.fncFlags, TypeScript.FncFlags.IsFunctionExpression)) {
+      kt += "fun"
+    }
+    else {
+      kt += "var"
+    }
+    kt += " " + member.name.text
+    if (member.name.text == "change") {
+      debugger
+      //ddebugger
+    }
   }
   kt += "("
   var args = member.arguments.members
   var isFirst = true
   for (var i = 0, n = args.length; i < n; i++) {
     var arg = args[i];
-    if (arg.nodeType != ts.TypeScript.NodeType.ArgDecl) {
+    if (arg.nodeType != TypeScript.NodeType.ArgDecl) {
       console.log("skip unsupported arg node " + arg)
       continue
     }
@@ -64,7 +78,6 @@ function processFunction(member, indent) {
     if (arg.isOptionalArg()) {
       kt += "? = null"
     }
-    //rebugger
   }
   kt += "):"
   if (member.returnTypeAnnotation === null) {
@@ -102,21 +115,21 @@ function tsTypeNameToKotlin(name) {
 
 function processExpression(expression) {
   switch (expression.nodeType) {
-    case ts.TypeScript.NodeType.Dot:
+    case TypeScript.NodeType.Dot:
       processExpression(expression.operand1)
       kt += "."
       processExpression(expression.operand2)
       break
 
-    case ts.TypeScript.NodeType.Name:
+    case TypeScript.NodeType.Name:
       kt += tsTypeNameToKotlin(expression.text)
       break
 
-    case ts.TypeScript.NodeType.FuncDecl:
+    case TypeScript.NodeType.FuncDecl:
       processFunction(expression, null)
       break
 
-    case ts.TypeScript.NodeType.InterfaceDeclaration:
+    case TypeScript.NodeType.InterfaceDeclaration:
       // todo ObservableObject.toJSON(): { [key: string]: any; };
       kt += "Any"
       break
@@ -135,21 +148,21 @@ function processMembers(members, moduleTree, indent) {
     var traitNameToMembers = Object.create(null)
     var classNameToMembers = Object.create(null)
     switch (member.nodeType) {
-      case ts.TypeScript.NodeType.FuncDecl:
+      case TypeScript.NodeType.FuncDecl:
         if (!member.isConstructor) {
           processFunction(member, indent)
         }
         break;
 
-      case ts.TypeScript.NodeType.InterfaceDeclaration:
+      case TypeScript.NodeType.InterfaceDeclaration:
         addOrCreate(traitNameToMembers, member.name.text, member.members.members)
         break;
 
-      case ts.TypeScript.NodeType.ClassDeclaration:
+      case TypeScript.NodeType.ClassDeclaration:
         addOrCreate(classNameToMembers, member.name.text, member.members.members)
         break;
 
-      case ts.TypeScript.NodeType.ModuleDeclaration:
+      case TypeScript.NodeType.ModuleDeclaration:
         assert(moduleTree !== null)
         var name = member.name.text
         // collect modules, d.ts can contains "module kendo, module kendo.data", but in Kotlin it will be "object kendo {object data{}}"
@@ -157,7 +170,7 @@ function processMembers(members, moduleTree, indent) {
         addOrCreate(moduleTree, name, member.members.members)
         break;
 
-      case ts.TypeScript.NodeType.VarDecl:
+      case TypeScript.NodeType.VarDecl:
         processVariable(member, indent)
         break;
 
@@ -174,7 +187,7 @@ function processVariable(member, indent) {
   kt += "\n" + indent + "public "
   var term = member.typeExpr.term;
   // is it object declaration (kotlin singleton)
-  var isObjectDeclaration = term.nodeType == ts.TypeScript.NodeType.Interface
+  var isObjectDeclaration = term.nodeType == TypeScript.NodeType.Interface
   if (isObjectDeclaration) {
     kt += "object "
   }
@@ -195,7 +208,7 @@ function processVariable(member, indent) {
   else {
     kt += ":"
     processExpression(term)
-    if (ts.TypeScript.hasFlag(member.sym.flags, ts.TypeScript.SymbolFlags.Optional)) {
+    if (TypeScript.hasFlag(member.sym.flags, TypeScript.SymbolFlags.Optional)) {
       kt += "?"
     }
   }
@@ -210,7 +223,7 @@ function processClassesOrTraits(map, indent, isTrait) {
     var hasMembers = subMembers.length > 0 && subMembers[0].length > 0;
     if (hasMembers) {
       var firstMember = subMembers[0][0];
-      if (firstMember.nodeType === ts.TypeScript.NodeType.FuncDecl && firstMember.isConstructor) {
+      if (firstMember.nodeType === TypeScript.NodeType.FuncDecl && firstMember.isConstructor) {
         processFunction(firstMember, null)
       }
       kt += " {"
