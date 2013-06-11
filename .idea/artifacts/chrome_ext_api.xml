@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="chrome-ext-api">
+    <output-path>$PROJECT_DIR$/out/artifacts</output-path>
+    <root id="root">
+      <element id="archive" name="chrome-ext-api.zip">
+        <element id="dir-copy" path="$PROJECT_DIR$/chrome-ext-api/src" />
+      </element>
+    </root>
+  </artifact>
+</component>
