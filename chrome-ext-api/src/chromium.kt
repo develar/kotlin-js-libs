@@ -174,7 +174,7 @@ public trait Storage {
 
 public trait StorageArea {
   native("get")
-  fun _get<T>(key:String?, callback:(data:T)->Unit):Unit
+  public fun _get<T>(key:String?, callback:(data:T)->Unit):Unit
 
   public fun set(items:Any, callback:(()->Unit)? = null):Unit
 }
@@ -195,10 +195,10 @@ public trait BrowserAction {
 
   public optionsArg fun setTitle(optionsArg title:String, tabId:Int? = null)
 
-  optionsArg class ImagePath(val `19`:String, val `38`:String)
+  public optionsArg class ImagePath(val `19`:String, val `38`:String)
 
   // you should use chrome jb extension method
-  optionsArg fun setIcon(imageData:Any? = null, path:ImagePath? = null, tabId:Int? = null, callback:(()->Unit)? = null)
+  public optionsArg fun setIcon(imageData:Any? = null, path:ImagePath? = null, tabId:Int? = null, callback:(()->Unit)? = null)
 }
 
 public trait WebRequest {
