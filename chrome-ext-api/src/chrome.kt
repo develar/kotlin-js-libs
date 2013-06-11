@@ -123,6 +123,7 @@ public trait LastError {
 }
 
 public native trait Extension {
+  deprecated("use chrome.runtime.lastError")
   public val lastError:LastError?
   public val onRequest:ChromeEvent<(request:Any, sender:Any, sendResponse:(response:Any)->Unit)->Unit>
   public val onConnect:ChromeEvent<(port:PortOnConnect)->Any>
@@ -131,6 +132,7 @@ public native trait Extension {
   public fun sendRequest<T>(request:Any, callback:((response:T)->Unit)? = null)
   public fun sendRequest(request:Any)
 
+  deprecated("use chrome.runtime.getURL")
   public fun getURL(path:String):String
 }
 
@@ -277,5 +279,12 @@ public object chrome {
 
     public fun get(query:Any, callback:(cookie:Cookie)->Unit):Unit
     public fun getAll(query:Any, callback:(cookies:Array<Cookie>)->Unit):Unit
+  }
+
+  public object runtime {
+    public val lastError:LastError?
+    public val id:String
+    public fun getURL(path:String):String
+    public fun reload():Unit
   }
 }
