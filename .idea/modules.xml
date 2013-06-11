@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ts2kt.iml" filepath="$PROJECT_DIR$/ts2kt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kotlin-js-libs.iml" filepath="$PROJECT_DIR$/kotlin-js-libs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ts2kt/ts2kt.iml" filepath="$PROJECT_DIR$/ts2kt/ts2kt.iml" />
     </modules>
   </component>
 </project>
