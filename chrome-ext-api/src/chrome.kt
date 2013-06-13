@@ -74,9 +74,6 @@ public trait Window {
   public val `type`:String
 }
 
-public val Window.isNormal:Boolean
-  get() = `type` == "normal"
-
 public trait Tab {
   public val url:String
   public val id:Int
