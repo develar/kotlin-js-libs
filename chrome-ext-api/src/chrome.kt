@@ -119,20 +119,6 @@ public trait LastError {
   public val message:String
 }
 
-public native trait Extension {
-  deprecated("use chrome.runtime.lastError")
-  public val lastError:LastError?
-  public val onRequest:ChromeEvent<(request:Any, sender:Any, sendResponse:(response:Any)->Unit)->Unit>
-  public val onConnect:ChromeEvent<(port:PortOnConnect)->Any>
-
-  public fun sendRequest<T>(extensionId:String?, request:Any, callback:((response:T)->Unit)?)
-  public fun sendRequest<T>(request:Any, callback:((response:T)->Unit)? = null)
-  public fun sendRequest(request:Any)
-
-  deprecated("use chrome.runtime.getURL")
-  public fun getURL(path:String):String
-}
-
 public trait App {
   // http://developer.chrome.com/trunk/apps/app.runtime.html
   public trait Runtime {
@@ -252,7 +238,16 @@ public object chrome {
   public val debugger:Debugger
   public val tabs:Tabs
   public val windows:Windows
-  public val extension:Extension
+
+
+  public object extension {
+    deprecated("use chrome.runtime.lastError")
+    public val lastError:LastError?
+
+    deprecated("use chrome.runtime.getURL")
+    public fun getURL(path:String):String
+  }
+
   public val app:App
   public val storage:Storage
   public val omnibox:Omnibox
@@ -281,7 +276,16 @@ public object chrome {
   public object runtime {
     public val lastError:LastError?
     public val id:String
+
+    public val onConnect:ChromeEvent<(port:PortOnConnect)->Any>
+    public val onMessage:ChromeEvent<(request:Any, sender:Any, sendResponse:(response:Any)->Unit)->Unit>
+
     public fun getURL(path:String):String
     public fun reload():Unit
+    public fun connect(extensionId:String? = null, optionsArg name):Port
+
+    public fun sendMessage<T>(extensionId:String?, request:Any, callback:((response:T)->Unit)?)
+    public fun sendMessage<T>(request:Any, callback:((response:T)->Unit)? = null)
+    public fun sendMessage(request:Any):Unit
   }
 }
