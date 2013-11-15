@@ -255,6 +255,40 @@ public object chrome {
   public val webRequest:WebRequest
   public val declarativeWebRequest:DeclarativeWebRequest
 
+  public object contextMenus {
+    public trait ContextMenuItemId
+
+    public class OnClickData {
+      public val menuItemId:ContextMenuItemId
+      public val parentMenuItemId:ContextMenuItemId?
+      public val mediaType:String?
+      public val linkUrl:String?
+      public val srcUrl:String?
+      public val pageUrl:String?
+      public val frameUrl:String?
+      public val selectionText:String?
+      public val editable:Boolean
+      public val wasChecked:Boolean
+      public val checked:Boolean
+    }
+
+    public optionsArg fun create(`type`:String? = null,
+                                 id:String? = null,
+                                 title:String? = null,
+                                 checked:Boolean? = null,
+                                 contexts:Array<String>? = null,
+                                 documentUrlPatterns:Array<String>? = null,
+                                 onclick:((info:OnClickData, tab:Tab)->Unit)? = null,
+                                 callback:(()->Unit)? = null):ContextMenuItemId
+
+    public optionsArg fun update(id:ContextMenuItemId, `type`:String? = null,
+                                 enabled:Boolean? = null,
+                                 checked:Boolean? = null,
+                                 title:String? = null,
+                                 documentUrlPatterns:Array<String>? = null,
+                                 callback:(()->Unit)? = null)
+  }
+
   public object cookies {
     public trait Cookie {
       public val name:String
